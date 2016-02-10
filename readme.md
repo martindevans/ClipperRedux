@@ -1,0 +1,1 @@
+A fork of [Clipper](http://www.angusj.com/delphi/clipper.php) with changes to improve C# code style. The original clipper was ported from another language into C# and it shows! This fork improves C# code style, fixes some small bugs and adds Code Contracts assertions to try and catch more bugs in the future.

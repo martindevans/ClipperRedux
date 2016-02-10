@@ -1,0 +1,14 @@
+*.suo
+*.user
+*.cache
+*.ncrunchproject
+*.ncrunchsolution
+
+_ReSharper.Caches
+packages
+
+ClipperRedux/bin
+ClipperRedux/obj
+
+ClipperRedux.Tests/bin
+ClipperRedux.Tests/obj
