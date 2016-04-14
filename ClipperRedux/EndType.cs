@@ -4,9 +4,11 @@ namespace ClipperRedux
 {
     public enum EndType
     {
-        Closed,
-        Butt,
-        Square,
-        Round
+        ClosedPolygon,
+        ClosedLine,
+
+        OpenButt,
+        OpenSquare,
+        OpenRound
     }
 }

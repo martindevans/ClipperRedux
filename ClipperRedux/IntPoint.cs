@@ -6,8 +6,8 @@ namespace ClipperRedux
     public struct IntPoint
         : IEquatable<IntPoint>
     {
-        public long X;
-        public long Y;
+        public readonly long X;
+        public readonly long Y;
 
         public IntPoint(long x, long y)
         {
@@ -15,10 +15,39 @@ namespace ClipperRedux
             Y = y;
         }
 
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return X.GetHashCode() * 17
+                     + Y.GetHashCode() * 31;
+            }
+        }
+
+        #region equality
+        public override bool Equals(object obj)
+        {
+            if (obj is IntPoint)
+                return Equals((IntPoint)obj);
+
+            return false;
+        }
+
         public bool Equals(IntPoint other)
         {
             return X == other.X && Y == other.Y;
         }
+
+        public static bool operator ==(IntPoint a, IntPoint b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(IntPoint a, IntPoint b)
+        {
+            return !a.Equals(b);
+        }
+        #endregion
 
         public bool IsClose(IntPoint other, double distSqrd)
         {

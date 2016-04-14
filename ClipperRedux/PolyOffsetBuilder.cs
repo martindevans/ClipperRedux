@@ -37,7 +37,7 @@ namespace ClipperRedux
                     DoRound(limit);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("jointype", string.Format("Unknown join type '{0}'", jointype));
+                    throw new ArgumentOutOfRangeException(nameof(jointype), $"Unknown join type '{jointype}'");
             }
             _k = _j;
         }
@@ -59,7 +59,7 @@ namespace ClipperRedux
             Contract.Requires(solution != null);
 
             if (ReferenceEquals(solution, points))
-                throw new ArgumentException("Input and Output parameters cannot be the same", "solution");
+                throw new ArgumentException("Input and Output parameters cannot be the same", nameof(solution));
             if (delta == 0)
                 return;
 
@@ -134,7 +134,7 @@ namespace ClipperRedux
                         OffsetPoint(jointype, limit);
 
                     IntPoint pt1;
-                    if (endtype == EndType.Butt)
+                    if (endtype == EndType.OpenButt)
                     {
                         _j = len - 1;
                         pt1 = new IntPoint(InternalHelpers.Round(points[_i][_j].X + _normals[_j].X * delta), InternalHelpers.Round(points[_i][_j].Y + _normals[_j].Y * delta));
@@ -148,7 +148,7 @@ namespace ClipperRedux
                         _k = len - 2;
                         _normals[_j] = new DoublePoint(-_normals[_j].X, -_normals[_j].Y);
 
-                        if (endtype == EndType.Square)
+                        if (endtype == EndType.OpenSquare)
                             DoSquare();
                         else
                             DoRound(limit);
@@ -165,7 +165,7 @@ namespace ClipperRedux
                     for (_j = _k - 1; _j > 0; --_j)
                         OffsetPoint(jointype, limit);
 
-                    if (endtype == EndType.Butt)
+                    if (endtype == EndType.OpenButt)
                     {
                         pt1 = new IntPoint(InternalHelpers.Round(points[_i][0].X - _normals[0].X * delta), InternalHelpers.Round(points[_i][0].Y - _normals[0].Y * delta));
                         AddPoint(pt1);
@@ -175,7 +175,7 @@ namespace ClipperRedux
                     else
                     {
                         _k = 1;
-                        if (endtype == EndType.Square)
+                        if (endtype == EndType.OpenSquare)
                             DoSquare();
                         else
                             DoRound(limit);

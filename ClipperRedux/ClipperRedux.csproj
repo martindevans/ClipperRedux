@@ -88,6 +88,7 @@
     <Compile Include="Clipper.cs" />
     <Compile Include="ClipperBase.cs" />
     <Compile Include="ClipperException.cs" />
+    <Compile Include="ClipperOffset.cs" />
     <Compile Include="ClipType.cs" />
     <Compile Include="DoublePoint.cs" />
     <Compile Include="EndType.cs" />

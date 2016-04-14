@@ -457,7 +457,7 @@ namespace ClipperRedux
                         return false;
                     break;
                 default:
-                    throw new InvalidOperationException(string.Format("Unknown polyFillType '{0}'", pft));
+                    throw new InvalidOperationException($"Unknown polyFillType '{pft}'");
             }
 
             switch (_clipType)
@@ -1579,8 +1579,10 @@ namespace ClipperRedux
                             throw new ClipperException("Intersection error");
                         if (pt.Y > botY)
                         {
-                            pt.Y = botY;
-                            pt.X = TopX(e, pt.Y);
+                            pt = new IntPoint(
+                                TopX(e, pt.Y),
+                                botY
+                            );
                         }
                         InsertIntersectNode(e, eNext, pt);
                         SwapPositionsInSEL(e, eNext);
@@ -1703,59 +1705,57 @@ namespace ClipperRedux
             Contract.Requires(edge1 != null);
             Contract.Requires(edge2 != null);
 
-            double b1, b2;
             if (InternalHelpers.SlopesEqual(edge1, edge2))
             {
-                ip.Y = edge2.YBot > edge1.YBot ? edge2.YBot : edge1.YBot;
+                ip = new IntPoint(
+                    ip.X,
+                    edge2.YBot > edge1.YBot ? edge2.YBot : edge1.YBot
+                );
+
                 return false;
             }
             else if (edge1.Dx == 0)
             {
-                ip.X = edge1.XBot;
-                if (edge2.Dx == HORIZONTAL)
-                {
-                    ip.Y = edge2.YBot;
-                }
-                else
-                {
-                    b2 = edge2.YBot - edge2.XBot / edge2.Dx;
-                    ip.Y = InternalHelpers.Round(ip.X / edge2.Dx + b2);
-                }
+                ip = new IntPoint(
+                    edge1.XBot,
+                    edge2.Dx == HORIZONTAL ? edge2.YBot : InternalHelpers.Round(ip.X / edge2.Dx + (edge2.YBot - edge2.XBot / edge2.Dx))
+                );
             }
             else if (edge2.Dx == 0)
             {
-                ip.X = edge2.XBot;
-                if (edge1.Dx == HORIZONTAL)
-                {
-                    ip.Y = edge1.YBot;
-                }
-                else
-                {
-                    b1 = edge1.YBot - edge1.XBot / edge1.Dx;
-                    ip.Y = InternalHelpers.Round(ip.X / edge1.Dx + b1);
-                }
+                ip = new IntPoint(
+                    edge2.XBot,
+                    edge1.Dx == HORIZONTAL ? edge1.YBot : InternalHelpers.Round(ip.X / edge1.Dx + (edge1.YBot - edge1.XBot / edge1.Dx))
+                );
             }
             else
             {
-                b1 = edge1.XBot - edge1.YBot * edge1.Dx;
-                b2 = edge2.XBot - edge2.YBot * edge2.Dx;
+                var b1 = edge1.XBot - edge1.YBot * edge1.Dx;
+                var b2 = edge2.XBot - edge2.YBot * edge2.Dx;
                 var q = (b2 - b1) / (edge1.Dx - edge2.Dx);
-                ip.Y = InternalHelpers.Round(q);
-                ip.X = Math.Abs(edge1.Dx) < Math.Abs(edge2.Dx) ? InternalHelpers.Round(edge1.Dx * q + b1) : InternalHelpers.Round(edge2.Dx * q + b2);
+
+                ip = new IntPoint(
+                    Math.Abs(edge1.Dx) < Math.Abs(edge2.Dx) ? InternalHelpers.Round(edge1.Dx * q + b1) : InternalHelpers.Round(edge2.Dx * q + b2),
+                    InternalHelpers.Round(q)
+                );
             }
 
             if (ip.Y < edge1.YTop || ip.Y < edge2.YTop)
             {
                 if (edge1.YTop > edge2.YTop)
                 {
-                    ip.X = edge1.XTop;
-                    ip.Y = edge1.YTop;
+                    ip = new IntPoint(
+                        edge1.XTop,
+                        edge1.YTop
+                    );
                     return TopX(edge2, edge1.YTop) < edge1.XTop;
                 }
                 else
                 {
-                    ip.X = edge2.XTop;
-                    ip.Y = edge2.YTop;
+                    ip = new IntPoint(
+                        edge2.XTop,
+                        edge2.YTop
+                    );
                     return TopX(edge1, edge2.YTop) > edge2.XTop;
                 }
             }
@@ -2498,7 +2498,7 @@ namespace ClipperRedux
             //duplicate vertices. Can be set false when you're sure that polygon
             //orientation is correct and that there are no duplicate vertices.
             if (!autoFix)
-                PolyOffsetBuilder.Offset(poly, result, true, delta, jointype, EndType.Closed, miterLimit);
+                PolyOffsetBuilder.Offset(poly, result, true, delta, jointype, EndType.ClosedPolygon, miterLimit);
             else
             {
                 var fixedPolys = poly.Select(a => a.ToList()).ToList();
@@ -2531,7 +2531,7 @@ namespace ClipperRedux
                 if (!Orientation(fixedPolys[botI]))
                     ReversePolygons(fixedPolys);
 
-                PolyOffsetBuilder.Offset(fixedPolys, result, true, delta, jointype, EndType.Closed, miterLimit);
+                PolyOffsetBuilder.Offset(fixedPolys, result, true, delta, jointype, EndType.ClosedPolygon, miterLimit);
             }
             return result;
         }
